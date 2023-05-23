@@ -20,10 +20,17 @@ export class Certificate {
 
   @ApiProperty({
     description: 'The certificate status. True if approved, false otherwise',
-    example: true,
+    example: 'pending',
   })
-  @Column({ type: 'boolean', nullable: false })
-  approved: boolean;
+  @Column({ type: 'varchar', nullable: false })
+  status: string;
+
+  @ApiProperty({
+    description: 'The reason rejecting',
+    example: 'Is not good reason',
+  })
+  @Column({ type: 'varchar', nullable: true })
+  rejectReason?: string;
 
   @ApiProperty({ description: 'The user the certificate belongs to.' })
   @ManyToOne(() => User, (user: User) => user.certificates)
