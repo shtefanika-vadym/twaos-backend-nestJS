@@ -58,7 +58,7 @@ export class CertificatesService {
     await this.certificateRepository.save(certificate);
 
     const emailData: ISendEmail = {
-      name: user.name,
+      name: user.first_name,
       email: user.email,
       reason: certificate.reason,
       rejectReason: certificate.rejectReason,
@@ -87,7 +87,7 @@ export class CertificatesService {
     await this.certificateRepository.save(certificate);
 
     const emailData: ISendEmail = {
-      name: user.name,
+      name: user.first_name,
       email: user.email,
       reason: certificate.reason,
     };

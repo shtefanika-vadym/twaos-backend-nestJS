@@ -1,22 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import * as xlsx from 'xlsx';
+import * as bcrypt from 'bcryptjs';
+import { UserRole } from 'src/users/roles/user-role';
 
 @Injectable()
 export class ExcelService {
-  convertExcelToJson(
+  async convertExcelUsersToJson(
     file: Express.Multer.File,
-    concatenateName: boolean,
-    additionalColumn?: object,
+    role: UserRole,
+    facultyName: string,
+    concatenateName?: boolean,
   ) {
     const workbook = xlsx.read(file.buffer, { type: 'buffer' });
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     let jsonData = xlsx.utils.sheet_to_json(worksheet, { raw: true });
 
-    if (additionalColumn)
-      jsonData = jsonData.map((row: any) => ({
+    jsonData = await Promise.all(
+      jsonData.map(async (row: any) => ({
         ...row,
-        ...additionalColumn,
-      }));
+        role,
+        faculty_name: facultyName,
+        password: await bcrypt.hash(row.email.split('@')[0], 5),
+      })),
+    );
 
     if (concatenateName) {
       const concatenatedData = jsonData.map((row: any) => {

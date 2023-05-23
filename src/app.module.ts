@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from 'src/app.controller';
 import { AppService } from 'src/app.service';
@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { Certificate } from 'src/certificates/certificates.model';
 import { CertificatesModule } from 'src/certificates/certificates.module';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
@@ -31,4 +32,10 @@ import { CertificatesModule } from 'src/certificates/certificates.module';
   providers: [AppService],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly usersService: UsersService) {}
+
+  async onModuleInit(): Promise<void> {
+    this.usersService.createAdmin();
+  }
+}

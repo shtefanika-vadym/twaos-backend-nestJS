@@ -16,8 +16,8 @@ export const excelFilter = (
   file: Express.Multer.File,
   callback: (error: Error, acceptFile: boolean) => void,
 ): void => {
-  if (!Boolean(file.mimetype.match(/(sheet)/))) {
-    callback(new BadRequestException('Only types of .xlsx, .csv are allowed'), false);
+  if (!Boolean(file.mimetype.match(/(csv)/))) {
+    callback(new BadRequestException('Only type .csv are allowed'), false);
   }
   callback(null, true);
 };
