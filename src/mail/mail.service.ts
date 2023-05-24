@@ -39,7 +39,7 @@ export class MailService {
 
     const subject = rejectReason ? 'Adeverină respinsă' : 'Adeverină aprobată';
 
-    await this.transporter.sendMail({
+    const res = await this.transporter.sendMail({
       subject,
       template: template,
       to: email,
@@ -49,6 +49,14 @@ export class MailService {
         reason,
         rejectReason,
       },
+      // attachments: [
+      //   {
+      //     filename: 'document.pdf',
+      //     content: [],
+      //     contentType: 'application/pdf',
+      //   },
+      // ],
     });
+    console.log(res);
   }
 }

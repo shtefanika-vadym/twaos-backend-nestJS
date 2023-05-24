@@ -101,16 +101,6 @@ export class UsersService {
       .getMany();
 
     return programCertificates;
-
-    // const students: User[] = await this.userRepository.find({
-    //   where: {
-    //     role: UserRole.student,
-    //     faculty_name: user.faculty_name,
-    //     program_study: user.program_study,
-    //   },
-    //   relations: { certificates: true },
-    // });
-    // console.log(students);
   }
 
   async createAdmin(): Promise<void> {
@@ -151,7 +141,9 @@ export class UsersService {
     const oldUsers: User[] = await this.userRepository.find({
       where: { role: In([UserRole.secretary, UserRole.student]) },
     });
+    const certificates: Certificate[] = await this.certificateRepository.find();
 
+    await this.certificateRepository.remove(certificates);
     await this.userRepository.remove(oldUsers);
     await this.userRepository.save(allUsers);
 

@@ -11,6 +11,7 @@ import { RejectCertificateDto } from 'src/certificates/dto/reject-certificate.dt
 import { MailService } from 'src/mail/mail.service';
 import { ISendEmail } from 'src/mail/interfaces/send-email.interface';
 import { PuppeteerService } from 'src/puppeteer/puppetter.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class CertificatesService {
@@ -20,6 +21,12 @@ export class CertificatesService {
     private puppeteerService: PuppeteerService,
     @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async notifySecretariesEveryMonth() {
+    await this.mailService.sendUserNotificationEmail({} as any);
+    console.log('CSgfgfdd!');
+  }
 
   async createCertificate(
     certificateDto: CreateCertificateDto,
@@ -100,7 +107,9 @@ export class CertificatesService {
     });
 
     certificate.status = CertificateStatus.approved;
-    certificate.certificateId = `${approvedCertificates.length}/${user.faculty_name}/${formattedDate}`;
+    certificate.certificateId = `${approvedCertificates.length + 1}/${
+      user.faculty_name
+    }/${formattedDate}`;
     await this.certificateRepository.save(certificate);
 
     const emailData: ISendEmail = {

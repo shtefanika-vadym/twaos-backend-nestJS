@@ -9,9 +9,11 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Certificate } from 'src/certificates/certificates.model';
 import { CertificatesModule } from 'src/certificates/certificates.module';
 import { UsersService } from 'src/users/users.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
@@ -29,8 +31,8 @@ import { UsersService } from 'src/users/users.service';
     AuthModule,
     CertificatesModule,
   ],
-  providers: [AppService],
   controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly usersService: UsersService) {}
