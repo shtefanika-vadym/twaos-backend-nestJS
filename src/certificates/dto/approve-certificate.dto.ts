@@ -7,6 +7,6 @@ export class ApproveCertificateDto {
     description: 'Notify user email',
     required: true,
   })
-  @IsBoolean({ message: 'Reject reason must be a boolean' })
+  @IsBoolean({ message: 'Notify user must be a boolean' })
   readonly notifyUser: boolean;
 }

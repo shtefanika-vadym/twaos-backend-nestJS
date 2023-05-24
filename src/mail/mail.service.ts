@@ -21,12 +21,15 @@ export class MailService {
 
   async sendUserNotificationEmail(data: ISendEmail): Promise<void> {
     const { name, reason, email, rejectReason } = data;
+
+    const template = rejectReason ? 'rejected' : 'success';
+
     const handlebarsOptions = {
       viewEngine: {
         extName: '.handlebars',
         partialsDir: 'templates',
         layoutsDir: 'templates',
-        defaultLayout: 'rejected',
+        defaultLayout: template,
       },
       viewPath: 'templates',
       extName: '.handlebars',
@@ -34,12 +37,11 @@ export class MailService {
 
     this.transporter.use('compile', hbs(handlebarsOptions));
 
-    const template = rejectReason ? 'rejected' : 'approved';
     const subject = rejectReason ? 'Adeverină respinsă' : 'Adeverină aprobată';
 
     await this.transporter.sendMail({
       subject,
-      template,
+      template: template,
       to: email,
       from: process.env.GMAIL_USER,
       context: {

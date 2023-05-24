@@ -15,6 +15,7 @@ export class UsersService {
   constructor(
     private excelService: ExcelService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -57,6 +58,7 @@ export class UsersService {
         'first_name',
         'last_name',
         'field_study',
+        'status',
         'initials',
         'faculty_name',
         'year_study',
@@ -72,13 +74,43 @@ export class UsersService {
   }
 
   async getUserCertificates(id: number): Promise<Certificate[]> {
-    const user: User = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.certificates', 'certificates')
-      .where('user.id = :id', { id })
-      .orderBy('certificates.id', 'DESC')
-      .getOne();
-    return user.certificates;
+    const user: User = await this.userRepository.findOne({
+      where: { id },
+      order: { id: 'DESC' },
+      relations: { certificates: true },
+    });
+
+    if (user.role === UserRole.student) return user.certificates;
+
+    const programCertificates: Certificate[] = await this.certificateRepository
+      .createQueryBuilder('certificate')
+      .select([
+        'certificate',
+        'user.first_name',
+        'user.last_name',
+        'user.program_study',
+        'user.year_study',
+        'user.field_study',
+        'user.email',
+        'user.status',
+      ])
+      .leftJoin('certificate.user', 'user')
+      .where('user.program_study = :programStudy', { programStudy: user.program_study })
+      .andWhere('user.faculty_name = :facultyName', { facultyName: user.faculty_name })
+      .orderBy('certificate.id', 'DESC')
+      .getMany();
+
+    return programCertificates;
+
+    // const students: User[] = await this.userRepository.find({
+    //   where: {
+    //     role: UserRole.student,
+    //     faculty_name: user.faculty_name,
+    //     program_study: user.program_study,
+    //   },
+    //   relations: { certificates: true },
+    // });
+    // console.log(students);
   }
 
   async createAdmin(): Promise<void> {

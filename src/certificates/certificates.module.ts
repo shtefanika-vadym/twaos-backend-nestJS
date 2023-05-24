@@ -8,11 +8,12 @@ import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.model';
 import { ExcelService } from 'src/excel/excel.service';
 import { MailService } from 'src/mail/mail.service';
+import { PuppeteerService } from 'src/puppeteer/puppetter.service';
 
 @Module({
   controllers: [CertificatesController],
-  providers: [CertificatesService, UsersService, ExcelService, MailService],
+  providers: [CertificatesService, UsersService, ExcelService, MailService, PuppeteerService],
   imports: [TypeOrmModule.forFeature([Certificate, User]), forwardRef(() => AuthModule)],
-  exports: [],
+  exports: [CertificatesService],
 })
 export class CertificatesModule {}

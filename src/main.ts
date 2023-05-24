@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-
 import { AppModule } from 'src/app.module';
+import { HandlebarsUtils } from 'src/utils/handlebars.utils';
 
 async function bootstrap(): Promise<void> {
   const PORT: number = Number(process.env.PORT) || 5000;
@@ -21,6 +21,8 @@ async function bootstrap(): Promise<void> {
     .build();
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/docs', app, document);
+
+  HandlebarsUtils.registerHandlebarsHelpers();
 
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));

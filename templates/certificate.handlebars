@@ -1,0 +1,101 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link
+      rel='stylesheet'
+      href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'
+    />
+  </head>
+  <body>
+
+    <div class='container'>
+      <div class='row'>
+        <div class='col-md-12'>
+          <p>UNIVERSITATEA "ȘTEFAN CEL MARE DIN SUCEAVA"</p>
+
+          <div class='d-flex justify-content-end'>
+            <p>Nr. {{certificateId}}</p>
+          </div>
+
+          <div class='d-flex justify-content-center'>
+            <b style='margin-top: 20px; margin-bottom: 30px; letter-spacing: 1px'>ADEVERINȚĂ</b>
+          </div>
+
+          <p style='padding: 0 0 0 10px;'>
+            Studentul(a)
+            {{user.first_name}}
+            {{user.initials}}
+            {{user.last_name}}
+            este înscris(ă) în anul universitar 2023/2024 în anul
+            {{user.year_study}}
+            program/domeniu de studii
+            {{user.field_study}}</p>
+
+          <div class='d-flex flex-column'>
+            <div class='form-check form-check-inline'>
+            <!--              UPDATE-->
+            <input class='form-check-input' type='checkbox' id='C' value='C' {{#ifCond 'C' user.program_study}} checked {{/ifCond}}/>
+            <label class='form-check-label' for='C'><i>Calculatoare</i></label>
+          </div>
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='AIA' value='AIA' {{#ifCond 'AIA' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='AIA'><i>Automatica și Informatica Aplicată</i></label>
+            </div>
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='IE' value='IE' {{#ifCond 'IE' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='IE'><i>Inginerie Electronică. Telecomunicații
+                  Informaționale / Rețele Informatice / Rețele și Software de Telecomunicații /
+                  Electronică Aplicată</i></label>
+            </div>
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='ESD' value='ESD' {{#ifCond 'ESD' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='ESD'><i>Echipamente și Sisteme Medicale</i></label>
+            </div>
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='SE' value='SE' {{#ifCond 'SE' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='SE'><i>Sisteme Electrice</i></label>
+            </div>
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='IE' value='IE' {{#ifCond 'IE' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='IE'><i>Inginerie Energetică / Energetică și
+                  Tehnologii Informatice / Managementul Energiei</i></label>
+            </div>
+
+            <div class='form-check form-check-inline'>
+              <input class='form-check-input' type='checkbox' id='ESC' value='ESC' {{#ifCond 'ESC' user.program_study}} checked {{/ifCond}} />
+              <label class='form-check-label' for='ESC'><i>Echipamente și Sisteme de Comandă și
+                  Control pentru Autovehicule</i></label>
+            </div>
+          </div>
+
+          <p>forma de învățămât {{user.status}}</p>
+
+          <p style='padding: 0 0 0 30px;'>Adeverința se eliberează pentru a-i servi la:
+            {{reason}}</p>
+
+          <div style='margin-top: 50px;' class='d-flex justify-content-between'>
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>DECAN,</b>
+              <p>Prof.univ.dr.ing. Laurențiu-Dan Milici</p>
+            </span>
+
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>SECRETAR ȘEF,</b>
+              <p>Elene CURELARU</p>
+            </span>
+
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>SECRETARIAT,</b>
+              <p style='margin: 0;'>Laura DOSPINESCU</p>
+              <p style='margin: 0;'>Lucia POPESCU</p>
+              <p style='margin: 0;'>Otilia FRUNZĂ</p>
+            </span>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
