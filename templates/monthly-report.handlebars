@@ -1,0 +1,72 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <link
+      rel='stylesheet'
+      href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'
+    />
+  </head>
+  <body>
+
+    <div class='container'>
+      <div class='row'>
+        <div class='col-md-12'>
+          <p>UNIVERSITATEA "ȘTEFAN CEL MARE DIN SUCEAVA"</p>
+
+          <div class='d-flex justify-content-center'>
+            <b style='margin-top: 20px; margin-bottom: 30px; letter-spacing: 1px'>RAPORT ADEVERINȚE</b>
+          </div>
+
+          <table class='table'>
+            <thead>
+              <tr>
+                <th scope='col'>ID</th>
+                <th scope='col'>Motivul</th>
+                <th scope='col'>Numele</th>
+                <th scope='col'>Statusul</th>
+                <th scope='col'>Creat</th>
+                <th scope='col'>Modificat</th>
+                <th scope='col'>Motivul respingerii</th>
+              </tr>
+            </thead>
+            <tbody>
+            {{#each certificates}}
+              <tr>
+                <th scope='row'>{{certificateId}}</th>
+                <td>{{reason}}</td>
+                <td>{{user.first_name}} {{user.last_name}}</td>
+                <td>{{status}}</td>
+                <td>{{created_at}}</td>
+                <td>{{updated_at}}</td>
+                <td>{{rejectReason}}</td>
+              </tr>
+            {{/each}}
+            </tbody>
+          </table>
+
+          <div style='margin-top: 50px;' class='d-flex justify-content-between'>
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>DECAN,</b>
+              <p>Prof.univ.dr.ing. Laurențiu-Dan Milici</p>
+            </span>
+
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>SECRETAR ȘEF,</b>
+              <p>Elene CURELARU</p>
+            </span>
+
+            <span class='d-flex align-items-center flex-column'>
+              <b style='letter-spacing: 1px;'>SECRETARIAT,</b>
+              <p style='margin: 0;'>Laura DOSPINESCU</p>
+              <p style='margin: 0;'>Lucia POPESCU</p>
+              <p style='margin: 0;'>Otilia FRUNZĂ</p>
+            </span>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

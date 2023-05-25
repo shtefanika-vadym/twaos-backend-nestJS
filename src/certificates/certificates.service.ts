@@ -12,6 +12,8 @@ import { MailService } from 'src/mail/mail.service';
 import { ISendEmail } from 'src/mail/interfaces/send-email.interface';
 import { PuppeteerService } from 'src/puppeteer/puppetter.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { User } from 'src/users/users.model';
+import { UserRole } from 'src/users/roles/user-role';
 
 @Injectable()
 export class CertificatesService {
@@ -22,10 +24,16 @@ export class CertificatesService {
     @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async notifySecretariesEveryMonth() {
-    await this.mailService.sendUserNotificationEmail({} as any);
-    console.log('CSgfgfdd!');
+  @Cron(CronExpression.EVERY_HOUR)
+  async notifySecretariesEveryMonth(): Promise<void> {
+    const secretaries: User[] = await this.userService.getSecretaries();
+    const promises = secretaries.map(async (secretary: User): Promise<void> => {
+      const response: Buffer = await this.getSecretaryMonthlyReportPdf(secretary.id);
+      await this.mailService.sendSecretaryMonthlyReportEmail(secretary.email, response);
+    });
+
+    await Promise.all(promises);
+    console.log('Cron!');
   }
 
   async createCertificate(
@@ -37,7 +45,6 @@ export class CertificatesService {
       user,
       ...certificateDto,
       status: CertificateStatus.pending,
-      // certificateId: '1/FIESC/20.10.2023',
     };
     await this.certificateRepository.save(certificate);
     return { message: 'Adeverința a fost creată cu succes' };
@@ -70,10 +77,14 @@ export class CertificatesService {
       name: user.first_name,
       email: user.email,
       reason: certificate.reason,
+      id: certificate.certificateId,
       rejectReason: certificate.rejectReason,
     };
 
-    if (dto.notifyUser) this.mailService.sendUserNotificationEmail(emailData);
+    if (dto.notifyUser) {
+      const certificatePdf: Buffer = await this.getCertificatePdf(id);
+      this.mailService.sendUserNotificationEmail(emailData, certificatePdf);
+    }
 
     return { message: 'Certificate rejected successfully' };
   }
@@ -116,9 +127,13 @@ export class CertificatesService {
       name: user.first_name,
       email: user.email,
       reason: certificate.reason,
+      id: certificate.certificateId,
     };
 
-    if (dto.notifyUser) this.mailService.sendUserNotificationEmail(emailData);
+    if (dto.notifyUser) {
+      const certificatePdf: Buffer = await this.getCertificatePdf(id);
+      this.mailService.sendUserNotificationEmail(emailData, certificatePdf);
+    }
 
     return { message: 'Certificate approved successfully' };
   }
@@ -133,6 +148,47 @@ export class CertificatesService {
       'certificate.handlebars',
       certificate,
     );
+    return response;
+  }
+
+  async getSecretaryMonthlyReportPdf(id: number): Promise<Buffer> {
+    const user: User = await this.userService.getUserById(id);
+
+    const startOfMonth: Date = new Date();
+    startOfMonth.setDate(1);
+
+    const endOfMonth: Date = new Date();
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1, 0);
+
+    const certificates: Certificate[] = await this.certificateRepository.find({
+      relations: { user: true },
+      where: {
+        created_at: Between(startOfMonth, endOfMonth),
+        user: {
+          role: UserRole.student,
+          faculty_name: user.faculty_name,
+          program_study: user.program_study,
+        },
+      },
+    });
+
+    const updatedCertificates = certificates.map(
+      ({ status, created_at, updated_at, ...rest }: Certificate) => ({
+        ...rest,
+        created_at: created_at.toISOString().slice(0, 10),
+        updated_at: updated_at.toISOString().slice(0, 10),
+        status:
+          status === CertificateStatus.approved
+            ? 'Aprobat'
+            : status === CertificateStatus.rejected
+            ? 'Respins'
+            : 'În procesare',
+      }),
+    );
+
+    const response: Buffer = await this.puppeteerService.generatePDF('monthly-report.handlebars', {
+      certificates: updatedCertificates,
+    });
     return response;
   }
 }

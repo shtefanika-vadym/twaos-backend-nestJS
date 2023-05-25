@@ -73,10 +73,18 @@ export class UsersService {
     return newUser;
   }
 
+  async getSecretaries(): Promise<User[]> {
+    const secretaries: User[] = await this.userRepository.find({
+      where: { role: UserRole.secretary },
+      select: ['id', 'email'],
+    });
+    return secretaries;
+  }
+
   async getUserCertificates(id: number): Promise<Certificate[]> {
     const user: User = await this.userRepository.findOne({
       where: { id },
-      order: { id: 'DESC' },
+      order: { certificates: { id: 'DESC' } },
       relations: { certificates: true },
     });
 

@@ -15,15 +15,11 @@ export class PuppeteerService {
 
       const html: string = template(templateData);
 
-      const browser: puppeteer.Browser = await puppeteer.launch();
+      const browser: puppeteer.Browser = await puppeteer.connect({
+        browserWSEndpoint: `wss://${process.env.BROWSERLESS}`,
+      });
       const page: puppeteer.Page = await browser.newPage();
       await page.setContent(html);
-
-      // await page.setViewport({
-      //   width: 595.28,
-      //   height: 420.94 / 2,
-      //   deviceScaleFactor: 1,
-      // });
 
       const buffer: Buffer = await page.pdf({
         format: 'A4',

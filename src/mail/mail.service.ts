@@ -19,8 +19,8 @@ export class MailService {
     });
   }
 
-  async sendUserNotificationEmail(data: ISendEmail): Promise<void> {
-    const { name, reason, email, rejectReason } = data;
+  async sendUserNotificationEmail(data: ISendEmail, buffer: Buffer): Promise<void> {
+    const { name, reason, email, rejectReason, id } = data;
 
     const template = rejectReason ? 'rejected' : 'success';
 
@@ -39,9 +39,9 @@ export class MailService {
 
     const subject = rejectReason ? 'Adeverină respinsă' : 'Adeverină aprobată';
 
-    const res = await this.transporter.sendMail({
+    await this.transporter.sendMail({
       subject,
-      template: template,
+      template,
       to: email,
       from: process.env.GMAIL_USER,
       context: {
@@ -49,14 +49,30 @@ export class MailService {
         reason,
         rejectReason,
       },
-      // attachments: [
-      //   {
-      //     filename: 'document.pdf',
-      //     content: [],
-      //     contentType: 'application/pdf',
-      //   },
-      // ],
+      attachments: [
+        {
+          content: buffer,
+          filename: `${id}.pdf`,
+          contentType: 'application/pdf',
+        },
+      ],
     });
-    console.log(res);
+  }
+
+  async sendSecretaryMonthlyReportEmail(to: string, buffer: Buffer): Promise<void> {
+    await this.transporter.sendMail({
+      text: 'Raport lunar pe baza adeverințelor emise până la momentul actual.',
+      subject: 'Raport lunar',
+      to: 'vadym.shtefanika@gmail.com',
+      from: process.env.GMAIL_USER,
+      context: {},
+      attachments: [
+        {
+          content: buffer,
+          filename: 'raport-lunar.pdf',
+          contentType: 'application/pdf',
+        },
+      ],
+    });
   }
 }

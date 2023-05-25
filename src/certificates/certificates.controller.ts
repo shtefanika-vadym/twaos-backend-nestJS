@@ -84,4 +84,26 @@ export class CertificatesController {
       else res.status(500).send({ error: 'Internal Server Error' });
     }
   }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get monthly report .pdf' })
+  @ApiResponse({ status: 200, type: MessageResponse })
+  @Get('report')
+  async getMonthlyReportPdf(@UserId('id') id: number, @Res() res): Promise<void> {
+    try {
+      const monthlyReportPdf: Buffer = await this.certificatesService.getSecretaryMonthlyReportPdf(id);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=pdf.pdf`,
+        'Content-Length': monthlyReportPdf.length,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: 0,
+      });
+      res.end(monthlyReportPdf);
+    } catch (error) {
+      if (error instanceof NotFoundException) res.status(404).send({ error: error.message });
+      else res.status(500).send({ error: 'Internal Server Error' });
+    }
+  }
 }
