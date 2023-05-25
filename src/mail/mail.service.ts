@@ -24,8 +24,6 @@ export class MailService {
 
     const template = rejectReason ? 'rejected' : 'success';
 
-    console.log(template);
-
     const handlebarsOptions = {
       viewEngine: {
         extName: '.handlebars',
@@ -61,7 +59,6 @@ export class MailService {
           ]
         : [],
     });
-    hbs.close();
     this.destroyTransport();
   }
 
