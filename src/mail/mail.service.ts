@@ -35,6 +35,8 @@ export class MailService {
       extName: '.handlebars',
     };
 
+    handlebarsOptions.viewEngine.defaultLayout = template;
+
     this.transporter.use('compile', hbs(handlebarsOptions));
 
     const subject = rejectReason ? 'Adeverină respinsă' : 'Adeverină aprobată';
