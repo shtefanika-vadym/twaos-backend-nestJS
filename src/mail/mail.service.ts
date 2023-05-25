@@ -24,6 +24,8 @@ export class MailService {
 
     const template = rejectReason ? 'rejected' : 'success';
 
+    console.log(template);
+
     const handlebarsOptions = {
       viewEngine: {
         extName: '.handlebars',
@@ -49,14 +51,18 @@ export class MailService {
         reason,
         rejectReason,
       },
-      attachments: [
-        {
-          content: buffer,
-          filename: `${id}.pdf`,
-          contentType: 'application/pdf',
-        },
-      ],
+      attachments: !rejectReason
+        ? [
+            {
+              content: buffer,
+              filename: `${id}.pdf`,
+              contentType: 'application/pdf',
+            },
+          ]
+        : [],
     });
+    hbs.close();
+    this.destroyTransport();
   }
 
   async sendSecretaryMonthlyReportEmail(to: string, buffer: Buffer): Promise<void> {
@@ -74,5 +80,10 @@ export class MailService {
         },
       ],
     });
+    this.destroyTransport();
+  }
+
+  destroyTransport(): void {
+    this.transporter.close();
   }
 }
