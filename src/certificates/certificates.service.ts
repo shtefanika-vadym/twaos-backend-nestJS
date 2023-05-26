@@ -14,7 +14,6 @@ import { PuppeteerService } from 'src/puppeteer/puppetter.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { User } from 'src/users/users.model';
 import { UserRole } from 'src/users/roles/user-role';
-import { log } from 'handlebars';
 
 @Injectable()
 export class CertificatesService {
@@ -25,13 +24,13 @@ export class CertificatesService {
     @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async notifySecretariesEveryMonth(): Promise<void> {
     const secretaries: User[] = await this.userService.getSecretaries();
-    secretaries.map(async (secretary: User): Promise<void> => {
+    for (const secretary of secretaries) {
       const response: Buffer = await this.getSecretaryMonthlyReportPdf(secretary.id);
       await this.mailService.sendSecretaryMonthlyReportEmail(secretary.email, response);
-    });
+    }
   }
 
   async createCertificate(

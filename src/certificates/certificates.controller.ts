@@ -91,7 +91,9 @@ export class CertificatesController {
   @Get('report')
   async getMonthlyReportPdf(@UserId('id') id: number, @Res() res): Promise<void> {
     try {
-      const monthlyReportPdf: Buffer = await this.certificatesService.getSecretaryMonthlyReportPdf(id);
+      const monthlyReportPdf: Buffer = await this.certificatesService.getSecretaryMonthlyReportPdf(
+        id,
+      );
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename=pdf.pdf`,

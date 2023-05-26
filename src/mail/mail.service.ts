@@ -17,27 +17,25 @@ export class MailService {
         pass: process.env.GMAIL_PASSWORD,
       },
     });
-  }
-
-  async sendUserNotificationEmail(data: ISendEmail, buffer: Buffer): Promise<void> {
-    const { name, reason, email, rejectReason, id } = data;
-
-    const template = rejectReason ? 'rejected' : 'success';
 
     const handlebarsOptions = {
       viewEngine: {
         extName: '.handlebars',
         partialsDir: 'templates',
         layoutsDir: 'templates',
-        defaultLayout: template,
+        defaultLayout: false,
       },
       viewPath: 'templates',
       extName: '.handlebars',
     };
 
-    handlebarsOptions.viewEngine.defaultLayout = template;
-
     this.transporter.use('compile', hbs(handlebarsOptions));
+  }
+
+  async sendUserNotificationEmail(data: ISendEmail, buffer: Buffer): Promise<void> {
+    const { name, reason, email, rejectReason, id } = data;
+
+    const template = rejectReason ? 'rejected' : 'success';
 
     const subject = rejectReason ? 'Adeverină respinsă' : 'Adeverină aprobată';
 
@@ -61,7 +59,6 @@ export class MailService {
           ]
         : [],
     });
-    this.destroyTransport();
   }
 
   async sendSecretaryMonthlyReportEmail(to: string, buffer: Buffer): Promise<void> {
@@ -79,10 +76,5 @@ export class MailService {
         },
       ],
     });
-    this.destroyTransport();
-  }
-
-  destroyTransport(): void {
-    this.transporter.close();
   }
 }
