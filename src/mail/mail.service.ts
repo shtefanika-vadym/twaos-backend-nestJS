@@ -65,7 +65,7 @@ export class MailService {
     await this.transporter.sendMail({
       to,
       subject: 'Raport lunar',
-      template: 'monthly-report',
+      template: false,
       text: 'Raport lunar pe baza adeverințelor emise până la momentul actual.',
       from: process.env.GMAIL_USER,
       context: {},
