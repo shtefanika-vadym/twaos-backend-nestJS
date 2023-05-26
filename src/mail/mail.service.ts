@@ -63,9 +63,10 @@ export class MailService {
 
   async sendSecretaryMonthlyReportEmail(to: string, buffer: Buffer): Promise<void> {
     await this.transporter.sendMail({
-      text: 'Raport lunar pe baza adeverințelor emise până la momentul actual.',
+      to,
       subject: 'Raport lunar',
-      to: 'vadym.shtefanika@gmail.com',
+      template: 'monthly-report',
+      text: 'Raport lunar pe baza adeverințelor emise până la momentul actual.',
       from: process.env.GMAIL_USER,
       context: {},
       attachments: [
