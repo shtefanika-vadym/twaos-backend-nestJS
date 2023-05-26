@@ -24,7 +24,7 @@ export class CertificatesService {
     @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_HOUR)
   async notifySecretariesEveryMonth(): Promise<void> {
     const secretaries: User[] = await this.userService.getSecretaries();
     for (const secretary of secretaries) {
