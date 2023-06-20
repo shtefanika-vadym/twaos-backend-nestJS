@@ -18,13 +18,18 @@ import { UserId } from 'src/auth/user-id.decorator';
 import { Certificate } from 'src/certificates/certificates.model';
 import { RejectCertificateDto } from 'src/certificates/dto/reject-certificate.dto';
 import { ApproveCertificateDto } from 'src/certificates/dto/approve-certificate.dto';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles-auth.decorator';
+import { UserRole } from 'src/users/roles/user-role';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('Certificates')
 @Controller('certificates')
 export class CertificatesController {
   constructor(private certificatesService: CertificatesService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.student)
   @ApiOperation({ summary: 'Create certificate' })
   @ApiResponse({ status: 200, type: MessageResponse })
   @Post()
@@ -35,14 +40,14 @@ export class CertificatesController {
     return this.certificatesService.createCertificate(certificateDto, userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user certificates' })
   @Get()
   async getUserCertificates(@UserId() userId: number): Promise<Certificate[]> {
     return this.certificatesService.getUserCertificates(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.secretary)
   @ApiOperation({ summary: 'Reject certificate' })
   @ApiResponse({ status: 200, type: MessageResponse })
   @Patch(':id/reject')
@@ -53,7 +58,8 @@ export class CertificatesController {
     return this.certificatesService.rejectCertificate(id, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.secretary)
   @ApiOperation({ summary: 'Approve certificate' })
   @ApiResponse({ status: 200, type: MessageResponse })
   @Patch(':id/approve')
@@ -63,6 +69,7 @@ export class CertificatesController {
   ): Promise<MessageResponse> {
     return this.certificatesService.approveCertificate(id, dto);
   }
+
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get certificate .pdf' })
   @ApiResponse({ status: 200, type: MessageResponse })
@@ -85,7 +92,8 @@ export class CertificatesController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.secretary)
   @ApiOperation({ summary: 'Get monthly report .pdf' })
   @ApiResponse({ status: 200, type: MessageResponse })
   @Get('report')

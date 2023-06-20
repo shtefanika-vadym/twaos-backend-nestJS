@@ -26,7 +26,7 @@ export class Certificate {
   reason: string;
 
   @ApiProperty({
-    description: 'The certificate status. True if approved, false otherwise',
+    description: 'The certificate status.',
     example: 'pending',
   })
   @Column({ type: 'varchar', nullable: false })

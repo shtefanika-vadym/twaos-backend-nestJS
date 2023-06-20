@@ -37,12 +37,11 @@ export class CertificatesService {
     certificateDto: CreateCertificateDto,
     userId: number,
   ): Promise<MessageResponse> {
-    const user = await this.userService.getUserById(userId);
-    const certificate = {
-      user,
-      ...certificateDto,
-      status: CertificateStatus.pending,
-    };
+    const user: User = await this.userService.getUserById(userId);
+    const certificate: Certificate = new Certificate();
+    certificate.user = user;
+    certificate.reason = certificateDto.reason;
+    certificate.status = CertificateStatus.pending;
     await this.certificateRepository.save(certificate);
     return { message: 'Adeverința a fost creată cu succes' };
   }
@@ -52,19 +51,20 @@ export class CertificatesService {
     return certificates;
   }
 
-  async rejectCertificate(id: number, dto: RejectCertificateDto): Promise<MessageResponse> {
+  getActiveCertificateById = async (id: number): Promise<Certificate> => {
     const certificate: Certificate = await this.certificateRepository.findOne({
-      where: { id },
+      where: { id, status: CertificateStatus.pending },
       relations: { user: true },
     });
+    if (!certificate) throw new NotFoundException('Certificate not found');
+
+    return certificate;
+  };
+
+  async rejectCertificate(id: number, dto: RejectCertificateDto): Promise<MessageResponse> {
+    const certificate: Certificate = await this.getActiveCertificateById(id);
 
     const { user } = certificate;
-
-    if (!certificate) throw new NotFoundException('Certificate not found');
-    if (certificate.status === CertificateStatus.rejected)
-      throw new NotFoundException('Certificate already rejected');
-    if (certificate.status === CertificateStatus.approved)
-      throw new NotFoundException('Certificate already approved');
 
     certificate.status = CertificateStatus.rejected;
     certificate.rejectReason = dto.rejectReason;
@@ -87,16 +87,7 @@ export class CertificatesService {
   }
 
   async approveCertificate(id: number, dto: ApproveCertificateDto): Promise<MessageResponse> {
-    const certificate: Certificate = await this.certificateRepository.findOne({
-      where: { id },
-      relations: { user: true },
-    });
-
-    if (!certificate) throw new NotFoundException('Certificate not found');
-    if (certificate.status === CertificateStatus.rejected)
-      throw new NotFoundException('Certificate already rejected');
-    if (certificate.status === CertificateStatus.approved)
-      throw new NotFoundException('Certificate already approved');
+    const certificate: Certificate = await this.getActiveCertificateById(id);
 
     const { user } = certificate;
 

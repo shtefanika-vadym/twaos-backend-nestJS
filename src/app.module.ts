@@ -10,6 +10,8 @@ import { Certificate } from 'src/certificates/certificates.model';
 import { CertificatesModule } from 'src/certificates/certificates.module';
 import { UsersService } from 'src/users/users.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ReplacementsModule } from 'src/replcements/replacements.module';
+import { Replacement } from 'src/replcements/replacements.model';
 
 @Module({
   imports: [
@@ -25,11 +27,12 @@ import { ScheduleModule } from '@nestjs/schedule';
       database: process.env.POSTGRES_DB,
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRESS_PASSWORD,
-      entities: [User, Certificate],
+      entities: [User, Certificate, Replacement],
     }),
     UsersModule,
     AuthModule,
     CertificatesModule,
+    ReplacementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

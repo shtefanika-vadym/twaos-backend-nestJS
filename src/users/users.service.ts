@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/users/users.model';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, LessThanOrEqual, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { Certificate } from 'src/certificates/certificates.model';
@@ -9,14 +9,33 @@ import { UpdateUsersDto } from 'src/users/dto/update-users.dto';
 import { ExcelService } from 'src/excel/excel.service';
 import { UserRole } from 'src/users/roles/user-role';
 import { MessageResponse } from 'src/reponse/message-response';
+import { SelectResponse } from 'src/reponse/select-response';
+import { Replacement } from 'src/replcements/replacements.model';
+import { CertificateStatus } from 'src/certificates/enum/certificate-status';
 
 @Injectable()
 export class UsersService {
   constructor(
     private excelService: ExcelService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Replacement) private replacementRepository: Repository<Replacement>,
     @InjectRepository(Certificate) private certificateRepository: Repository<Certificate>,
   ) {}
+
+  async getAllFacultySecretaries(id: number): Promise<SelectResponse[]> {
+    const secretary: User = await this.getUserById(id);
+    const secretaries: User[] = await this.userRepository.find({
+      where: { id: Not(id), role: UserRole.secretary, faculty_name: secretary.faculty_name },
+      select: ['id', 'first_name', 'last_name'],
+    });
+    const secretariesSelect: SelectResponse[] = secretaries.map(
+      (secretary: User): SelectResponse => ({
+        value: String(secretary.id),
+        label: secretary.first_name + ' ' + secretary?.last_name,
+      }),
+    );
+    return secretariesSelect;
+  }
 
   async getAllUsers(): Promise<User[]> {
     const users: User[] = await this.userRepository.find({
@@ -81,13 +100,52 @@ export class UsersService {
     return secretaries;
   }
 
-  async getUserCertificates(id: number): Promise<Certificate[]> {
+  async getUserByIdWithCertificates(id: number): Promise<User> {
     const user: User = await this.userRepository.findOne({
       where: { id },
-      order: { certificates: { id: 'DESC' } },
       relations: { certificates: true },
+      order: { certificates: { id: 'DESC' } },
+    });
+    return user;
+  }
+
+  async getUserCertificates(id: number): Promise<Certificate[]> {
+    const certificates: Certificate[] = await this.getCertificatesByUserRole(id);
+    const replacingCertificates: Certificate[] = await this.getCertificatesInReplacingPeriod(id);
+    return [...certificates, ...replacingCertificates];
+  }
+
+  async getCertificatesInReplacingPeriod(id: number): Promise<Certificate[]> {
+    let certificates: Certificate[] = [];
+    const replacements: Replacement[] = await this.getReplacingSecretaries(id);
+
+    for (let i = 0; i < replacements.length; i++) {
+      const { replacedUser }: Replacement = replacements[i];
+      const secretaryCertificates: Certificate[] = await this.getCertificatesByUserRole(
+        replacedUser.id,
+      );
+      certificates = [...certificates, ...secretaryCertificates];
+    }
+    return certificates;
+  }
+
+  async getReplacingSecretaries(userId: number): Promise<Replacement[]> {
+    const currentDate: string = new Date().toISOString();
+    const activeReplacements: Replacement[] = await this.replacementRepository.find({
+      relations: { replacedUser: true },
+      where: {
+        replacingUser: { id: userId },
+        status: CertificateStatus.approved,
+        end_date: MoreThanOrEqual(currentDate),
+        start_date: LessThanOrEqual(currentDate),
+      },
     });
 
+    return activeReplacements;
+  }
+
+  async getCertificatesByUserRole(id: number): Promise<Certificate[]> {
+    const user: User = await this.getUserByIdWithCertificates(id);
     if (user.role === UserRole.student) return user.certificates;
 
     const programCertificates: Certificate[] = await this.certificateRepository
