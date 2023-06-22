@@ -87,7 +87,10 @@ export class ReplacementsService {
         status: CertificateStatus.pending,
         replacingUser: { id: secretaryId },
       },
+      relations: ['replacingUser', 'replacedUser'],
     });
+
+    console.log(replacement);
 
     if (!replacement) throw new NotFoundException('Replacement not found');
 
