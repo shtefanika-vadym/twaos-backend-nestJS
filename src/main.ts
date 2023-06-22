@@ -15,7 +15,7 @@ async function bootstrap(): Promise<void> {
   });
 
   const config: Omit<OpenAPIObject, 'paths'> = new DocumentBuilder()
-    .setTitle('Boilerplate')
+    .setTitle('TWAOS')
     .setDescription('Documentation REST API')
     .setVersion('1.0.0')
     .build();
