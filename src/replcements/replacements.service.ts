@@ -90,8 +90,6 @@ export class ReplacementsService {
       relations: ['replacingUser', 'replacedUser'],
     });
 
-    console.log(replacement);
-
     if (!replacement) throw new NotFoundException('Replacement not found');
 
     return replacement;
@@ -106,11 +104,7 @@ export class ReplacementsService {
     replacement.status = CertificateStatus.approved;
     await this.replacementRepository.save(replacement);
 
-    this.mailService.sendReplacementStatus(
-      replacement.replacedUser.email,
-      CertificateStatus.approved,
-      replacement,
-    );
+    this.mailService.sendReplacementStatus(CertificateStatus.approved, replacement);
 
     return { message: 'Replacement approved successfully' };
   }
@@ -124,11 +118,7 @@ export class ReplacementsService {
     replacement.status = CertificateStatus.rejected;
     await this.replacementRepository.save(replacement);
 
-    this.mailService.sendReplacementStatus(
-      replacement.replacedUser.email,
-      CertificateStatus.rejected,
-      replacement,
-    );
+    this.mailService.sendReplacementStatus(CertificateStatus.rejected, replacement);
 
     return { message: 'Replacement rejected successfully' };
   }

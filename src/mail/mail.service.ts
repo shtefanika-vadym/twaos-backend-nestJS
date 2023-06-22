@@ -63,21 +63,16 @@ export class MailService {
     });
   }
 
-  async sendReplacementStatus(
-    to: string,
-    status: CertificateStatus,
-    replacement: Replacement,
-  ): Promise<void> {
+  async sendReplacementStatus(status: CertificateStatus, replacement: Replacement): Promise<void> {
     const isRejected: boolean = status === CertificateStatus.rejected;
-    const template = isRejected ? 'replacement-approved' : 'replacement-rejected';
+    const template = !isRejected ? 'replacement-approved' : 'replacement-rejected';
 
     const subject = isRejected ? 'Cerere de înlocuire respinsă' : 'Cerere de înlocuire aprobată';
 
     await this.transporter.sendMail({
-      to,
       subject,
       template,
-
+      to: replacement.replacedUser.email,
       from: process.env.GMAIL_USER,
       context: replacement,
     });
