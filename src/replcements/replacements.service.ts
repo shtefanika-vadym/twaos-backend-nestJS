@@ -8,10 +8,12 @@ import { CreateReplacementDto } from 'src/replcements/dto/create-replacement.dto
 import { CertificateStatus } from 'src/certificates/enum/certificate-status';
 import { MessageResponse } from 'src/reponse/message-response';
 import { ReplacementResponse } from 'src/replcements/responses/replacement-response';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class ReplacementsService {
   constructor(
+    private mailService: MailService,
     private usersService: UsersService,
     @InjectRepository(Replacement) private replacementRepository: Repository<Replacement>,
   ) {}
@@ -101,6 +103,12 @@ export class ReplacementsService {
     replacement.status = CertificateStatus.approved;
     await this.replacementRepository.save(replacement);
 
+    this.mailService.sendReplacementStatus(
+      replacement.replacedUser.email,
+      CertificateStatus.approved,
+      replacement,
+    );
+
     return { message: 'Replacement approved successfully' };
   }
 
@@ -112,6 +120,12 @@ export class ReplacementsService {
 
     replacement.status = CertificateStatus.rejected;
     await this.replacementRepository.save(replacement);
+
+    this.mailService.sendReplacementStatus(
+      replacement.replacedUser.email,
+      CertificateStatus.rejected,
+      replacement,
+    );
 
     return { message: 'Replacement rejected successfully' };
   }

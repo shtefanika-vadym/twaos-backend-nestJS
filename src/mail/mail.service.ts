@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as hbs from 'nodemailer-express-handlebars';
 import { ISendEmail } from 'src/mail/interfaces/send-email.interface';
+import { CertificateStatus } from 'src/certificates/enum/certificate-status';
+import { Replacement } from 'src/replcements/replacements.model';
 
 @Injectable()
 export class MailService {
@@ -61,11 +63,32 @@ export class MailService {
     });
   }
 
+  async sendReplacementStatus(
+    to: string,
+    status: CertificateStatus,
+    replacement: Replacement,
+  ): Promise<void> {
+    const isRejected: boolean = status === CertificateStatus.rejected;
+    const template = isRejected ? 'replacement-approved' : 'replacement-rejected';
+
+    const subject = isRejected ? 'Cerere de înlocuire respinsă' : 'Cerere de înlocuire aprobată';
+
+    await this.transporter.sendMail({
+      to,
+      subject,
+      template,
+
+      from: process.env.GMAIL_USER,
+      context: replacement,
+    });
+  }
+
   async sendSecretaryMonthlyReportEmail(to: string, buffer: Buffer): Promise<void> {
     await this.transporter.sendMail({
       to,
       template: 'monthly',
       subject: 'Raport lunar',
+
       from: process.env.GMAIL_USER,
       context: {},
       attachments: [
